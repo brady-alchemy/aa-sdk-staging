@@ -4,15 +4,9 @@ import {
   parseAbiParameters,
   type Address,
   type Hash,
-  type Hex,
   type PublicClient,
 } from "viem";
-
-type SignWith6492Params = {
-  factoryAddress: Address;
-  initCode: Hex;
-  signature: Hash;
-};
+import type { SignWith6492Params } from "../account/types";
 
 type VerifyEIP6492SignatureParams = {
   signer: Address;

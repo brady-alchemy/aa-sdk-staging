@@ -21,40 +21,7 @@ import { LightAccountFactoryAbi } from "./abis/LightAccountFactoryAbi.js";
 export class LightSmartContractAccount<
   TTransport extends Transport | FallbackTransport = Transport
 > extends SimpleSmartContractAccount<TTransport> {
-  override async signMessageWith6492(
-    msg: string | Uint8Array
-  ): Promise<`0x${string}`> {
-    const [isDeployed, signature] = await Promise.all([
-      this.isAccountDeployed(),
-      this.signMessage(msg),
-    ]);
-
-    return this.create6492Signature(isDeployed, signature);
-  }
-
-  override async signTypedData(params: SignTypedDataParams): Promise<Hash> {
-    return this.owner.signTypedData(params);
-  }
-
-  override async signTypedDataWith6492(
-    params: SignTypedDataParams
-  ): Promise<Hash> {
-    const [isDeployed, signature] = await Promise.all([
-      this.isAccountDeployed(),
-      this.signTypedData(params),
-    ]);
-
-    return this.create6492Signature(isDeployed, signature);
-  }
-
-  private async create6492Signature(
-    isDeployed: boolean,
-    signature: Hash
-  ): Promise<Hash> {
-    if (isDeployed) {
-      return signature;
-    }
-
+  override async wrapSigWith6492(signature: Hash): Promise<Hash> {
     return wrapWith6492({
       signature,
       factoryAddress: this.factoryAddress,
@@ -64,6 +31,10 @@ export class LightSmartContractAccount<
         args: [await this.owner.getAddress(), this.index],
       }),
     });
+  }
+
+  override async signTypedData(params: SignTypedDataParams): Promise<Hash> {
+    return this.owner.signTypedData(params);
   }
 
   /**

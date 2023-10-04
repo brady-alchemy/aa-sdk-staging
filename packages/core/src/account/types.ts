@@ -5,6 +5,12 @@ import type { BatchUserOperationCallData } from "../types";
 
 export type SignTypedDataParams = Omit<SignTypedDataParameters, "privateKey">;
 
+export type SignWith6492Params = {
+  factoryAddress: Address;
+  initCode: Hex;
+  signature: Hash;
+};
+
 export interface ISmartContractAccount {
   /**
    * @returns the init code for the account
@@ -77,4 +83,6 @@ export interface ISmartContractAccount {
    * @returns the address of the account
    */
   getAddress(): Promise<Address>;
+
+  wrapWith6492(params: SignWith6492Params): Hash;
 }

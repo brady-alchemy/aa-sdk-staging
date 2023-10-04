@@ -17,7 +17,11 @@ import type {
 } from "../client/types.js";
 import { Logger } from "../logger.js";
 import type { BatchUserOperationCallData } from "../types.js";
-import type { ISmartContractAccount, SignTypedDataParams } from "./types.js";
+import type {
+  ISmartContractAccount,
+  SignTypedDataParams,
+  SignWith6492Params,
+} from "./types.js";
 
 export enum DeploymentState {
   UNDEFINED = "0x0",
@@ -70,6 +74,9 @@ export abstract class BaseSmartContractAccount<
       publicClient: this.rpcProvider as PublicClient,
     });
   }
+  wrapWith6492(_params: SignWith6492Params): `0x${string}` {
+    throw new Error("Method not implemented.");
+  }
 
   // #region abstract-methods
 
@@ -113,16 +120,6 @@ export abstract class BaseSmartContractAccount<
   // #region optional-methods
 
   /**
-   * This method should wrap the result of `signMessage` as per
-   * [EIP-6492](https://eips.ethereum.org/EIPS/eip-6492)
-   *
-   * @param _msg -- the message to sign
-   */
-  async signMessageWith6492(_msg: string | Uint8Array): Promise<`0x${string}`> {
-    throw new Error("signMessageWith6492 not supported");
-  }
-
-  /**
    * If your contract supports signing and verifying typed data,
    * you should implement this method.
    *
@@ -133,6 +130,25 @@ export abstract class BaseSmartContractAccount<
   }
 
   /**
+   * This method should wrap the result of `signMessage` as per
+   * [EIP-6492](https://eips.ethereum.org/EIPS/eip-6492)
+   *
+   * @param _msg -- the message to sign
+   */
+  async signMessageWith6492(msg: string | Uint8Array): Promise<`0x${string}`> {
+    const [isDeployed, signature] = await Promise.all([
+      this.isAccountDeployed(),
+      this.signMessage(msg),
+    ]);
+
+    if (isDeployed) {
+      return signature;
+    }
+
+    return this.wrapSigWith6492(signature);
+  }
+
+  /**
    * Similar to the signMessageWith6492 method above,
    * this method should wrap the result of `signTypedData` as per
    * [EIP-6492](https://eips.ethereum.org/EIPS/eip-6492)
@@ -140,9 +156,22 @@ export abstract class BaseSmartContractAccount<
    * @param _params -- Typed Data params to sign
    */
   async signTypedDataWith6492(
-    _params: SignTypedDataParams
+    params: SignTypedDataParams
   ): Promise<`0x${string}`> {
-    throw new Error("signTypedDataWith6492 not supported");
+    const [isDeployed, signature] = await Promise.all([
+      this.isAccountDeployed(),
+      this.signTypedData(params),
+    ]);
+
+    if (isDeployed) {
+      return signature;
+    }
+
+    return this.wrapSigWith6492(signature);
+  }
+
+  async wrapSigWith6492(_signature: Hash): Promise<Hash> {
+    throw new Error("wrapWith6492 not supported");
   }
 
   /**
