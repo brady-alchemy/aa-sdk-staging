@@ -1,7 +1,6 @@
 import {
   SimpleSmartContractAccount,
   SmartAccountProvider,
-  wrapWith6492,
   type SignTypedDataParams,
   type SmartAccountSigner,
 } from "@alchemy/aa-core";
@@ -21,18 +20,6 @@ import { LightAccountFactoryAbi } from "./abis/LightAccountFactoryAbi.js";
 export class LightSmartContractAccount<
   TTransport extends Transport | FallbackTransport = Transport
 > extends SimpleSmartContractAccount<TTransport> {
-  override async wrapSigWith6492(signature: Hash): Promise<Hash> {
-    return wrapWith6492({
-      signature,
-      factoryAddress: this.factoryAddress,
-      initCode: encodeFunctionData({
-        abi: LightAccountFactoryAbi,
-        functionName: "createAccount",
-        args: [await this.owner.getAddress(), this.index],
-      }),
-    });
-  }
-
   override async signTypedData(params: SignTypedDataParams): Promise<Hash> {
     return this.owner.signTypedData(params);
   }

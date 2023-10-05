@@ -7,7 +7,7 @@ export type SignTypedDataParams = Omit<SignTypedDataParameters, "privateKey">;
 
 export type SignWith6492Params = {
   factoryAddress: Address;
-  functionCallData: Hex;
+  factoryCalldata: Hex;
   signature: Hash;
 };
 
@@ -83,6 +83,4 @@ export interface ISmartContractAccount {
    * @returns the address of the account
    */
   getAddress(): Promise<Address>;
-
-  wrapWith6492(params: SignWith6492Params): Hash;
 }

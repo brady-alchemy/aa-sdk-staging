@@ -16,12 +16,9 @@ import type {
   SupportedTransports,
 } from "../client/types.js";
 import { Logger } from "../logger.js";
+import { wrapSignatureWith6492 } from "../signer/utils.js";
 import type { BatchUserOperationCallData } from "../types.js";
-import type {
-  ISmartContractAccount,
-  SignTypedDataParams,
-  SignWith6492Params,
-} from "./types.js";
+import type { ISmartContractAccount, SignTypedDataParams } from "./types.js";
 
 export enum DeploymentState {
   UNDEFINED = "0x0",
@@ -73,9 +70,6 @@ export abstract class BaseSmartContractAccount<
       // This is valid because our PublicClient is a subclass of PublicClient
       publicClient: this.rpcProvider as PublicClient,
     });
-  }
-  wrapWith6492(_params: SignWith6492Params): `0x${string}` {
-    throw new Error("Method not implemented.");
   }
 
   // #region abstract-methods
@@ -141,11 +135,7 @@ export abstract class BaseSmartContractAccount<
       this.signMessage(msg),
     ]);
 
-    if (isDeployed) {
-      return signature;
-    }
-
-    return this.wrapSigWith6492(signature);
+    return this.create6492Signature(isDeployed, signature);
   }
 
   /**
@@ -162,16 +152,35 @@ export abstract class BaseSmartContractAccount<
       this.isAccountDeployed(),
       this.signTypedData(params),
     ]);
+    return this.create6492Signature(isDeployed, signature);
+  }
 
+  private async create6492Signature(
+    isDeployed: boolean,
+    signature: Hash
+  ): Promise<Hash> {
     if (isDeployed) {
       return signature;
     }
 
-    return this.wrapSigWith6492(signature);
-  }
+    // https://eips.ethereum.org/EIPS/eip-4337#first-time-account-creation
+    // The initCode field (if non-zero length) is parsed as a 20-byte address,
+    // followed by calldata to pass to this address.
+    // The factory address is the first 40 char after the 0x, and the callData is the rest.
+    const initCode = await this.getAccountInitCode();
+    const factoryAddress = `0x${initCode.substring(2, 42)}` as Hex;
+    const factoryCalldata = `0x${initCode.substring(42)}` as Hex;
 
-  async wrapSigWith6492(_signature: Hash): Promise<Hash> {
-    throw new Error("wrapWith6492 not supported");
+    Logger.debug(
+      `[BaseSmartContractAccount](create6492Signature) initCode: ${initCode}, \
+        factoryAddress: ${factoryAddress}, factoryCalldata: ${factoryCalldata}`
+    );
+
+    return wrapSignatureWith6492({
+      factoryAddress,
+      factoryCalldata,
+      signature,
+    });
   }
 
   /**

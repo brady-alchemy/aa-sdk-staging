@@ -50,6 +50,8 @@ export class KernelSmartContractAccount<
     this.validator = params.validator ?? params.defaultValidator!;
   }
 
+  // #region BaseSmartContractAccount required methods
+
   getDummySignature(): Hex {
     return "0x00000000b650d28e51cf39d5c0bb7db6d81cce5f0a77baba8bf8de587c0bc83fa70e374f3bfef2afb697dc5627c669de7dc13e96c85697e0f6aae2f2ebe227552d00cb181c";
   }
@@ -60,14 +62,6 @@ export class KernelSmartContractAccount<
     } else {
       return this.encodeExecuteAction(target, value, data, 0);
     }
-  }
-
-  async encodeExecuteDelegate(
-    target: Hex,
-    value: bigint,
-    data: Hex
-  ): Promise<Hex> {
-    return this.encodeExecuteAction(target, value, data, 1);
   }
 
   override async encodeBatchExecute(
@@ -81,6 +75,25 @@ export class KernelSmartContractAccount<
       functionName: "multiSend",
       args: [multiSendData],
     });
+  }
+
+  signMessage(msg: Uint8Array | string): Promise<Hex> {
+    const formattedMessage = typeof msg === "string" ? toBytes(msg) : msg;
+    return this.validator.signMessageWithValidatorParams(formattedMessage);
+  }
+
+  protected async getAccountInitCode(): Promise<Hex> {
+    return concatHex([this.factoryAddress, await this.getFactoryInitCode()]);
+  }
+
+  // #endregion BaseSmartContractAccount required methods
+
+  async encodeExecuteDelegate(
+    target: Hex,
+    value: bigint,
+    data: Hex
+  ): Promise<Hex> {
+    return this.encodeExecuteAction(target, value, data, 1);
   }
 
   async signWithEip6492(msg: string | Uint8Array): Promise<Hex> {
@@ -105,11 +118,6 @@ export class KernelSmartContractAccount<
     }
   }
 
-  signMessage(msg: Uint8Array | string): Promise<Hex> {
-    const formattedMessage = typeof msg === "string" ? toBytes(msg) : msg;
-    return this.validator.signMessageWithValidatorParams(formattedMessage);
-  }
-
   protected encodeExecuteAction(
     target: Hex,
     value: bigint,
@@ -121,9 +129,6 @@ export class KernelSmartContractAccount<
       functionName: "execute",
       args: [target, value, data, code],
     });
-  }
-  protected async getAccountInitCode(): Promise<Hex> {
-    return concatHex([this.factoryAddress, await this.getFactoryInitCode()]);
   }
 
   protected async getFactoryInitCode(): Promise<Hex> {
