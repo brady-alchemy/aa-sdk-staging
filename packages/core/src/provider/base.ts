@@ -100,6 +100,7 @@ export class SmartAccountProvider<
   readonly account?: ISmartContractAccount;
   protected entryPointAddress: Address;
   protected chain: Chain;
+  private rpcProvider: string | PublicErc4337Client<TTransport>;
 
   minPriorityFeePerBid: bigint;
   rpcClient:
@@ -126,6 +127,7 @@ export class SmartAccountProvider<
       minPriorityFeePerBidDefaults.get(chain.id) ??
       100_000_000n;
 
+    this.rpcProvider = rpcProvider;
     this.rpcClient =
       typeof rpcProvider === "string"
         ? createPublicErc4337Client({
@@ -521,6 +523,22 @@ export class SmartAccountProvider<
   ): this & { account: TAccount } {
     const account = fn(this.rpcClient);
     defineReadOnly(this, "account", account);
+
+    const signer = (account as unknown as { owner: any }).owner;
+
+    this.rpcClient =
+      typeof this.rpcProvider === "string"
+        ? createPublicErc4337Client({
+            chain: this.chain,
+            rpcUrl: this.rpcProvider,
+            fetchOptions: {
+              headers: {
+                "account-type": account.constructor.name,
+                "signer-type": signer?.constructor?.name,
+              },
+            },
+          })
+        : this.rpcProvider;
 
     this.emit("connect", {
       chainId: toHex(this.chain.id),
