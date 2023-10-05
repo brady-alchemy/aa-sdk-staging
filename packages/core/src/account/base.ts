@@ -153,7 +153,7 @@ export abstract class BaseSmartContractAccount<
    * this method should wrap the result of `signTypedData` as per
    * [EIP-6492](https://eips.ethereum.org/EIPS/eip-6492)
    *
-   * @param _params -- Typed Data params to sign
+   * @param params -- Typed Data params to sign
    */
   async signTypedDataWith6492(
     params: SignTypedDataParams
