@@ -7,7 +7,7 @@ export type SignTypedDataParams = Omit<SignTypedDataParameters, "privateKey">;
 
 export type SignWith6492Params = {
   factoryAddress: Address;
-  initCode: Hex;
+  functionCallData: Hex;
   signature: Hash;
 };
 
