@@ -14,7 +14,7 @@ head:
 
 # withGasEstimator
 
-Override the gasEstimator middleware which is used for setting the gasLimit fields on the UserOperation prior to execution.
+Override the `gasEstimator` middleware which is used for setting the `gasLimit` fields on the `UserOperation` prior to execution.
 
 ## Usage
 
