@@ -35,18 +35,22 @@ Remember to replace `ALCHEMY_API_KEY` with your Alchemy API key. If you don't ha
 
 A gas manager policy is a set of rules that define which user operations are eligible for gas sponsorship. You can control which operations are eligible for sponsorship by defining rules:
 
-* **Spending rules**: limit the amount of money or the number of user ops that can be sponsored by this policy
-* **Allowlist**: restrict wallet addresses that are eligible for sponsorship. The policy will only sponsor gas for user operations that were sent by addresses on this list.
-* **Blocklist**: ban certain addresses from receiving sponsorship under this policy
-* **Policy duration**: define the duration of your policy and the sponsorship expiry period. This is the period for which the Gas Manager signature (paymaster data) will remain valid once it is generated.
+- **Spending rules**: limit the amount of money or the number of user ops that can be sponsored by this policy
+- **Allowlist**: restrict wallet addresses that are eligible for sponsorship. The policy will only sponsor gas for user operations that were sent by addresses on this list.
+- **Blocklist**: ban certain addresses from receiving sponsorship under this policy
+- **Policy duration**: define the duration of your policy and the sponsorship expiry period. This is the period for which the Gas Manager signature (paymaster data) will remain valid once it is generated.
 
 To learn more about policy configuration, refer to the guide on [setting up a gas manager policy](https://docs.alchemy.com/docs/setup-a-gas-manager-policy).
 
-Once you've decided on policy rules for your app, [create a policy](https://dashboard.alchemy.com/gas-manager/policy/create) in the Gas Manager dashboard. 
+Once you've decided on policy rules for your app, [create a policy](https://dashboard.alchemy.com/gas-manager/policy/create) in the Gas Manager dashboard.
 
 ### 3. Link the Policy to your Provider
 
-Next, you must link your gas policy to your provider. Find your Policy ID located at the top of the policy page in the Gas Manager dashboard. Copy it and then replace the `GAS_MANAGER_POLICY_ID` in the snippet below. 
+Next, you must link your gas policy to your provider. Find your Policy ID located at the top of the policy page in the Gas Manager dashboard.
+
+![Policy ID](../assets/images/policy-id.png)
+
+Copy it and then replace the `GAS_MANAGER_POLICY_ID` in the snippet below.
 
 ::: code-group
 
@@ -80,7 +84,7 @@ You've created a gas manager policy and linked it to the provider. This guarante
 
 ### 4. Send the Sponsored UserOperation
 
-Now you're ready to send sponsored user operations! You can send a user operation by calling `sendUserOperation` on the provider. The Gas Manager will check if this user operation satisfies the policy rules defined above and sponsor the gas costs if the rules are met. If the user operation does not meet the policy rules, [TODO@sahil]
+Now you're ready to send sponsored user operations! You can send a user operation by calling `sendUserOperation` on the provider. The Gas Manager will check if this user operation satisfies the policy rules defined above and sponsor the gas costs if the rules are met. If the user operation does not meet the policy rules, an error will be thrown.
 
 ::: code-group
 
