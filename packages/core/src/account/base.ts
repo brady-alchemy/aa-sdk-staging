@@ -127,7 +127,7 @@ export abstract class BaseSmartContractAccount<
    * This method should wrap the result of `signMessage` as per
    * [EIP-6492](https://eips.ethereum.org/EIPS/eip-6492)
    *
-   * @param _msg -- the message to sign
+   * @param msg -- the message to sign
    */
   async signMessageWith6492(msg: string | Uint8Array): Promise<`0x${string}`> {
     const [isDeployed, signature] = await Promise.all([
