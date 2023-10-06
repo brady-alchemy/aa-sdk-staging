@@ -152,6 +152,7 @@ export abstract class BaseSmartContractAccount<
       this.isAccountDeployed(),
       this.signTypedData(params),
     ]);
+
     return this.create6492Signature(isDeployed, signature);
   }
 
