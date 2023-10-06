@@ -1,0 +1,50 @@
+---
+outline: deep
+head:
+  - - meta
+    - property: og:title
+      content: withPaymasterMiddleware
+  - - meta
+    - name: description
+      content: Overview of the withPaymasterMiddleware method on ISmartAccountProvider
+  - - meta
+    - property: og:description
+      content: Overview of the withPaymasterMiddleware method on ISmartAccountProvider
+---
+
+# withPaymasterMiddleware
+
+Override the default dummy paymaster data middleware and paymaster data middleware (sets the `paymasterAndData` field during `sendUserOperation` calls).
+
+These middleware are often used together. The dummy paymaster data is used in gas estimation before we actually have paymaster data. Because the paymaster data has an impact on the gas estimation, it's good to supply dummy paymaster data that is valid for your paymaster contract. The default `dummyPaymasterData` generator function returns `0x` for both the `paymasterAndData` fields. The default `paymasterAndData` generator function returns `0x` for both the `paymasterAndData` fields.
+
+
+## Usage
+
+::: code-group
+
+```ts [example.ts]
+import { provider } from "./provider";
+
+// [!code focus:99]
+provider.withPaymasterMiddleware({
+    DummyPaymasterDataMiddlewareOverrideFunction,
+    PaymasterDataMiddlewareOverrideFunction
+});
+```
+
+<<< @/snippets/provider.ts
+:::
+
+## Returns
+
+### `ISmartAccountProvider`
+
+An update instance of the provider, which now uses the new middleware
+
+## Parameters
+
+### `overrides: {dummyPaymasterDataMiddleware, paymasterDataMiddleware}`
+
+- `dummyPaymasterDataMiddleware?: PaymasterAndDataMiddleware` - `dummyPaymasterData` generator function specific to the paymaster you are using to estimate gas correctly. Default: `0x` for both the `paymasterAndData` fields.
+- `paymasterDataMiddleware?: PaymasterAndDataMiddleware` - `paymasterAndData` generator function called after gas estimation and fee estimated used to set the `paymasterAndData` field. Default: `0x` for both the `paymasterAndData` fields.
