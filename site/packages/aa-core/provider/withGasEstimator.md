@@ -38,7 +38,7 @@ provider.withGasEstimator(async () => ({
 
 ### `SmartAccountProvider`
 
-The provider with the gasEstimator middleware override.
+The provider with the `gasEstimator` middleware override.
 
 ## Parameters
 
