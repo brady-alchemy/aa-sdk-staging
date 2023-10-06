@@ -3,7 +3,7 @@ outline: deep
 head:
   - - meta
     - property: og:title
-      content: withGasEstimator
+      content: ISmartAccountProvider • withGasEstimator
   - - meta
     - name: description
       content: Overview of the withGasEstimator method on ISmartAccountProvider
